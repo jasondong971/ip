@@ -1,52 +1,39 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.2">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px 'Helvetica Neue'; color: #262626; -webkit-text-stroke: #262626}
-    span.s1 {font: 12.0px Helvetica; color: #000000; -webkit-text-stroke: 0px #000000}
-    span.s2 {font-kerning: none}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Show Public IP</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial; padding: 24px; }
+    .box { padding: 16px; border: 1px solid #ddd; border-radius: 12px; max-width: 520px; }
+    .label { color: #666; margin-bottom: 8px; }
+    .ip { font-size: 28px; font-weight: 700; }
+    .hint { color: #666; margin-top: 12px; line-height: 1.5; }
   </style>
 </head>
 <body>
-<p class="p1">&lt;!doctype html&gt;</p>
-<p class="p1">&lt;meta charset="utf-8"&gt;</p>
-<p class="p1">&lt;title&gt;Report Public IP&lt;/title&gt;</p>
-<p class="p1">&lt;pre id="out"&gt;Loading…&lt;/pre&gt;</p>
-<p class="p1">&lt;script&gt;</p>
-<p class="p1">(async () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const out = document.getElementById('out');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// 你自己的 webhook 收件箱地址（替换这里）</p>
-<p class="p3"><span class="s1"><span class="Apple-converted-space">  </span>const WEBHOOK = '</span><span class="s2">https://webhook.site/82805484-7400-430e-92fb-cea59ecf1c32</span><span class="s1">';</span></p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// 一个你自己设的随机口令（替换这里，建议 20+ 位）</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const TOKEN = ‘jason-2026-01-02;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// 1) 获取公网 IP（public IP）</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const ip = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' })</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.then(r =&gt; r.json())</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.then(j =&gt; j.ip);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// 2) 上报到 webhook（带 token，避免别人乱发）</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const url = `${WEBHOOK}?ip=${encodeURIComponent(ip)}&amp;device=android&amp;ts=${Date.now()}&amp;token=${encodeURIComponent(TOKEN)}`;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// 优先 sendBeacon（更适合上报）；失败则 fallback 到 fetch</p>
-<p class="p1"><span class="Apple-converted-space">  </span>let sent = false;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>try { sent = navigator.sendBeacon(url); } catch (e) {}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (!sent) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>await fetch(url, { mode: 'no-cors', cache: 'no-store' });</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>out.textContent = `Reported IP: ${ip}\nSent to webhook.\n(If you used VPN, this is the VPN exit IP.)`;</p>
-<p class="p1">})();</p>
-<p class="p1">&lt;/script&gt;</p>
+  <div class="box">
+    <div class="label">Your public IP:</div>
+    <div id="ip" class="ip">Loading…</div>
+    <div class="hint">
+      If you use VPN, this will show the VPN exit IP.<br/>
+      Open this page on your phone to see the phone's public IP.
+    </div>
+  </div>
+
+  <script>
+    (async () => {
+      const el = document.getElementById('ip');
+      try {
+        const res = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+        const data = await res.json();
+        el.textContent = data.ip || 'N/A';
+      } catch (e) {
+        el.textContent = 'Failed to load';
+      }
+    })();
+  </script>
 </body>
 </html>
+
