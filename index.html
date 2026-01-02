@@ -1,39 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Show Public IP</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial; padding: 24px; }
-    .box { padding: 16px; border: 1px solid #ddd; border-radius: 12px; max-width: 520px; }
-    .label { color: #666; margin-bottom: 8px; }
-    .ip { font-size: 28px; font-weight: 700; }
-    .hint { color: #666; margin-top: 12px; line-height: 1.5; }
-  </style>
-</head>
-<body>
-  <div class="box">
-    <div class="label">Your public IP:</div>
-    <div id="ip" class="ip">Loading…</div>
-    <div class="hint">
-      If you use VPN, this will show the VPN exit IP.<br/>
-      Open this page on your phone to see the phone's public IP.
-    </div>
-  </div>
+<meta charset="utf-8">
+<title>Report IP</title>
+<pre id="out">Loading…</pre>
+<script>
+(async () => {
+  const out = document.getElementById('out');
+  const ipJson = await fetch('https://api.ipify.org?format=json').then(r => r.json());
+  const ip = ipJson.ip;
 
-  <script>
-    (async () => {
-      const el = document.getElementById('ip');
-      try {
-        const res = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
-        const data = await res.json();
-        el.textContent = data.ip || 'N/A';
-      } catch (e) {
-        el.textContent = 'Failed to load';
-      }
-    })();
-  </script>
-</body>
-</html>
+  const webhook = 'YOUR_WEBHOOK_URL'; // 例如 https://webhook.site/xxxx-xxxx...
+  const url = webhook + '?ip=' + encodeURIComponent(ip) + '&ts=' + Date.now();
 
+  await fetch(url, { mode: 'no-cors' }); // 只要“打到”对方即可
+  out.textContent = 'Reported IP: ' + ip + '\nSent to: ' + webhook;
+})();
+</script>
